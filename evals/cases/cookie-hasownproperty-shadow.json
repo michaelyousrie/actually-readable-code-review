@@ -1,0 +1,19 @@
+{
+  "id": "cookie-hasownproperty-shadow",
+  "repo": "https://github.com/jshttp/cookie.git",
+  "fix_commit": "bc38ffd0eae716b199236dda061d0bdc74192dd3",
+  "summary": "cookie.parse checks for duplicates with obj.hasOwnProperty(key) on a plain object, so a cookie named hasOwnProperty overwrites that method and the next cookie pair throws TypeError: obj.hasOwnProperty is not a function.",
+  "expect": {
+    "path": "index.js",
+    "line_min": 125,
+    "line_max": 141,
+    "min_score": 3
+  },
+  "reformat": {
+    "source_review": "reformat/cookie-hasownproperty-shadow.md",
+    "false_finding": {
+      "path": "index.js",
+      "line": 305
+    }
+  }
+}

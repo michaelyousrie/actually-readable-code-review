@@ -1,0 +1,15 @@
+{
+  "id": "multipart-header-carryover",
+  "repo": "https://github.com/Kludex/python-multipart.git",
+  "fix_commit": "8b85d35fd79869766f678cbdc27bfaebe37b5527",
+  "summary": "The multipart/form-data parser never clears its headers dict when a new part begins, so a header such as Content-Transfer-Encoding: base64 from one part is applied to the next part, which is then decoded wrongly or fails to parse.",
+  "expect": {
+    "path": "multipart/multipart.py",
+    "line_min": 1608,
+    "line_max": 1624,
+    "min_score": 3
+  },
+  "revert_paths": [
+    "multipart/multipart.py"
+  ]
+}

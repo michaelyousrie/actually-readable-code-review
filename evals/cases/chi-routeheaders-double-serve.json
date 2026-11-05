@@ -1,0 +1,15 @@
+{
+  "id": "chi-routeheaders-double-serve",
+  "repo": "https://github.com/go-chi/chi.git",
+  "fix_commit": "05f1ef7bb50b8a8cb33a9dd3ba1c5b94bff0f723",
+  "summary": "HeaderRouter.Handler calls next.ServeHTTP when no header routes are set but does not return, so it falls through and calls next.ServeHTTP a second time, running the downstream handler twice for every request.",
+  "expect": {
+    "path": "middleware/route_headers.go",
+    "line_min": 74,
+    "line_max": 89,
+    "min_score": 3
+  },
+  "revert_paths": [
+    "middleware/route_headers.go"
+  ]
+}
