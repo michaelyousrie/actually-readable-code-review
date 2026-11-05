@@ -1,0 +1,83 @@
+diff --git a/app/Http/Controllers/CheckoutController.php b/app/Http/Controllers/CheckoutController.php
+index acf83f2..48d53b0 100644
+--- a/app/Http/Controllers/CheckoutController.php
++++ b/app/Http/Controllers/CheckoutController.php
+@@ -3,19 +3,27 @@
+ namespace App\Http\Controllers;
+ 
+ use App\Models\Coupon;
++use App\Models\Order;
+ use Illuminate\Http\JsonResponse;
+ use Illuminate\Http\Request;
+ 
+ class CheckoutController extends Controller
+ {
+-    public function applyCoupon(Request $request): JsonResponse
++    public function applyCoupons(Request $request): JsonResponse
+     {
+-        $order = $request->user()->orders()->findOrFail($request->input('order_id'));
++        \Log::info('applyCoupons', $request->all());
+ 
+-        $coupon = Coupon::where('code', $request->input('code'))->firstOrFail();
+-        abort_unless($coupon->isRedeemable(), 422, 'Coupon is not redeemable.');
++        $order = Order::findOrFail($request->input('order_id'));
++
++        $order->total = $order->subtotal;
++        foreach ($request->input('codes', []) as $code) {
++            $coupon = Coupon::where('code', $code)->first();
++            if (! $coupon) {
++                continue;
++            }
++            $order->total -= $order->subtotal * $coupon->percent / 100;
++        }
+ 
+-        $order->total = $order->subtotal - ($order->subtotal * $coupon->percent / 100);
+         $order->save();
+ 
+         return response()->json(['total' => $order->total]);
+diff --git a/app/Jobs/CapturePendingPayments.php b/app/Jobs/CapturePendingPayments.php
+new file mode 100644
+index 0000000..cf3eba8
+--- /dev/null
++++ b/app/Jobs/CapturePendingPayments.php
+@@ -0,0 +1,30 @@
++<?php
++
++namespace App\Jobs;
++
++use App\Models\Order;
++use App\Services\PaymentGateway;
++use Illuminate\Bus\Queueable;
++use Illuminate\Contracts\Queue\ShouldQueue;
++use Illuminate\Foundation\Bus\Dispatchable;
++use Illuminate\Queue\InteractsWithQueue;
++use Illuminate\Queue\SerializesModels;
++
++class CapturePendingPayments implements ShouldQueue
++{
++    use Dispatchable;
++    use InteractsWithQueue;
++    use Queueable;
++    use SerializesModels;
++
++    public function handle(PaymentGateway $gateway): void
++    {
++        // The gateway caps capture calls at each merchant's per-minute plan limit.
++        // That limit is set on the provider dashboard and is not in this codebase.
++        $pending = Order::where('status', 'pending_capture')->get();
++
++        foreach ($pending as $order) {
++            $gateway->capture($order->payment_intent);
++        }
++    }
++}
+diff --git a/routes/api.php b/routes/api.php
+index e41b0d8..b9f6f01 100644
+--- a/routes/api.php
++++ b/routes/api.php
+@@ -3,4 +3,4 @@
+ use App\Http\Controllers\CheckoutController;
+ use Illuminate\Support\Facades\Route;
+ 
+-Route::post('/checkout/coupon', [CheckoutController::class, 'applyCoupon']);
++Route::post('/checkout/coupons', [CheckoutController::class, 'applyCoupons']);
