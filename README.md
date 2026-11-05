@@ -108,7 +108,7 @@ reformats another reviewer's output, into one fixed structure that holds only wh
 
 ## Install
 
-Once the repo is published:
+With the [skills.sh](https://skills.sh) CLI:
 
 `npx skills add michaelyousrie/actually-readable-code-review`
 
