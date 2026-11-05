@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Todos</title>
+</head>
+<body>
+    <h1>Add a todo</h1>
+    <form action="todos.php" method="post">
+        <input type="hidden" name="action" value="add">
+        <input name="title" placeholder="Buy milk" required>
+        <button>Add</button>
+    </form>
+
+    <h1>Remove a todo</h1>
+    <form action="todos.php" method="post">
+        <input type="hidden" name="action" value="delete">
+        <input name="id" placeholder="Todo number" required>
+        <button>Remove</button>
+    </form>
+
+    <p><a href="todos.php">See all todos</a></p>
+</body>
+</html>
